@@ -15,6 +15,8 @@ set (BUILD_VALA ON CACHE BOOL "Generate the C code from Vala files")
 set (GETTEXT_PACKAGE "latexila")
 set (LOCALE_DIR "${CMAKE_INSTALL_PREFIX}/share/locale")
 find_package (Gettext REQUIRED)
+list (APPEND CMAKE_MODULE_PATH "${latexila_SOURCE_DIR}/cmake")
+find_package (Itstool REQUIRED)
 
 set (SCHEMA_DIR "${CMAKE_INSTALL_PREFIX}/share")
 set (ICONS_DIR "${CMAKE_INSTALL_PREFIX}/share/icons/hicolor")

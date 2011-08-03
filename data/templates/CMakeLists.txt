@@ -55,7 +55,7 @@ foreach (po_file ${po_files})
 		OUTPUT ${lang_files}
 		COMMAND ${GETTEXT_MSGFMT_EXECUTABLE} -o ${mo_file} ${po_file}
 		COMMAND mkdir -p ${tmp_dir}/${lang}-xml ${tmp_dir}/${lang}
-		COMMAND itstool -i ${src_dir}/templates.its -m ${mo_file} -o ${tmp_dir}/${lang}-xml/ ${path_files}
+		COMMAND ${ITSTOOL_EXECUTABLE} -i ${src_dir}/templates.its -m ${mo_file} -o ${tmp_dir}/${lang}-xml/ ${path_files}
 		COMMAND ${src_dir}/gen_tex.sh ${tmp_dir}/${lang}-xml ${tmp_dir}/${lang}
 		DEPENDS ${po_file}
 	)

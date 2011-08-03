@@ -29,7 +29,7 @@ function (itstool target_name src_dir tmp_dir install_dir)
 			OUTPUT ${lang_files}
 			COMMAND ${GETTEXT_MSGFMT_EXECUTABLE} -o ${mo_file} ${po_file}
 			COMMAND mkdir -p ${tmp_dir}/${lang}
-			COMMAND itstool -m ${mo_file} -o ${tmp_dir}/${lang}/ ${path_files}
+			COMMAND ${ITSTOOL_EXECUTABLE} -m ${mo_file} -o ${tmp_dir}/${lang}/ ${path_files}
 			DEPENDS ${po_file}
 		)
 
