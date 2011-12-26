@@ -19,7 +19,7 @@
 
 using Gtk;
 
-public class FileBrowser : VBox
+public class FileBrowser : Grid
 {
     private enum ParentDirColumn
     {
@@ -52,7 +52,8 @@ public class FileBrowser : VBox
 
     public FileBrowser (MainWindow main_window)
     {
-        GLib.Object (spacing: 3);
+        row_spacing = 3;
+        orientation = Orientation.VERTICAL;
         this.main_window = main_window;
         this.build_view = main_window.get_build_view ();
 
@@ -94,8 +95,10 @@ public class FileBrowser : VBox
 
     private void init_toolbar ()
     {
-        HBox hbox = new HBox (true, 0);
-        pack_start (hbox, false, false);
+        Grid grid = new Grid ();
+        grid.set_orientation (Orientation.HORIZONTAL);
+        grid.column_homogeneous = true;
+        add (grid);
 
         Button home_button = Utils.get_toolbar_button (Stock.HOME);
         parent_button = Utils.get_toolbar_button (Stock.GO_UP);
@@ -107,10 +110,10 @@ public class FileBrowser : VBox
         jump_button.tooltip_text = _("Go to the active document directory");
         refresh_button.tooltip_text = _("Refresh");
 
-        hbox.pack_start (home_button);
-        hbox.pack_start (parent_button);
-        hbox.pack_start (jump_button);
-        hbox.pack_start (refresh_button);
+        grid.add (home_button);
+        grid.add (parent_button);
+        grid.add (jump_button);
+        grid.add (refresh_button);
 
         home_button.clicked.connect (() =>
         {
@@ -167,7 +170,7 @@ public class FileBrowser : VBox
             typeof (File));
 
         combo_box = new ComboBox.with_model (parent_dir_store);
-        pack_start (combo_box, false, false);
+        add (combo_box);
 
         // indentation
         CellRendererText text_renderer = new CellRendererText ();
@@ -233,7 +236,8 @@ public class FileBrowser : VBox
 
         // with a scrollbar
         Widget sw = Utils.add_scrollbar (_list_view);
-        pack_start (sw);
+        sw.expand = true;
+        add (sw);
 
         _list_view.row_activated.connect ((path) =>
         {

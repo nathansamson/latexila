@@ -19,18 +19,18 @@
 
 using Gtk;
 
-public class DocumentTab : VBox
+public class DocumentTab : Grid
 {
     public DocumentView view { get; private set; }
     public Document document { get; private set; }
 
     private bool ask_if_externally_modified = false;
 
-    private HBox _label;
+    private Grid _label;
     private Label _label_text = new Label (null);
     private Label _label_mark = new Label (null);
 
-    public HBox label
+    public Grid label
     {
         get { return _label; }
     }
@@ -164,7 +164,8 @@ public class DocumentTab : VBox
         sw.show_all ();
 
         // pack at the end so we can display message above
-        pack_end (sw, true, true, 0);
+        sw.expand = true;
+        attach (sw, 0, 0, 1, 1);
 
         update_label_text ();
 
@@ -176,13 +177,16 @@ public class DocumentTab : VBox
         close_button.add (new Image.from_stock (Stock.CLOSE, IconSize.MENU));
         close_button.clicked.connect (() => this.close_document ());
 
-        _label = new HBox (false, 0);
-        _label.pack_start (_label_mark, false, false, 0);
-        _label.pack_start (_label_text, true, false, 0);
-        _label.pack_start (close_button, false, false, 0);
+        _label = new Grid ();
+        _label.set_hexpand (false);
+        _label.orientation = Orientation.HORIZONTAL;
+        _label.add (_label_mark);
+        _label_text.set_hexpand (true);
+        _label_text.set_halign (Align.CENTER);
+        _label.add (_label_text);
+        _label.add (close_button);
         update_label_tooltip ();
         _label.show_all ();
-
 
         /* auto save */
         GLib.Settings settings =
@@ -205,7 +209,7 @@ public class DocumentTab : VBox
         MessageType msg_type)
     {
         TabInfoBar infobar = new TabInfoBar (primary_msg, secondary_msg, msg_type);
-        pack_start (infobar, false, false, 0);
+        attach_next_to (infobar, get_child_at (0, 0), PositionType.TOP, 1, 1);
         return infobar;
     }
 

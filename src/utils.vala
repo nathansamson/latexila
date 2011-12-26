@@ -319,23 +319,23 @@ namespace Utils
 
     public Widget get_dialog_component (string title, Widget widget)
     {
-        VBox vbox = new VBox (false, 6);
-        vbox.border_width = 6;
+        Grid grid = new Grid ();
+        grid.orientation = Orientation.VERTICAL;
+        grid.set_row_spacing (6);
+        grid.border_width = 6;
 
         // title in bold, left aligned
         Label label = new Label (null);
         label.set_markup ("<b>" + title + "</b>");
-        label.xalign = (float) 0.0;
-        vbox.pack_start (label, false, false);
+        label.set_halign (Align.START);
+        grid.add (label);
 
         // left margin for the widget
-        Alignment alignment = new Alignment ((float) 0.5, (float) 0.5, (float) 1.0,
-            (float) 1.0);
-        alignment.left_padding = 12;
-        alignment.add (widget);
-        vbox.pack_start (alignment);
+        widget.set_margin_left (12);
+        widget.set_hexpand (true);
+        grid.add (widget);
 
-        return vbox;
+        return grid;
     }
 
 
@@ -364,7 +364,7 @@ namespace Utils
 
         Gdk.Window window = gtkwindow.get_window ();
         Gdk.Display display = window.get_display ();
-        unowned X.Display x_display = Gdk.x11_display_get_xdisplay (display);
+        unowned X.Display x_display = Gdk.X11Display.get_xdisplay (display);
 
         X.Atom type;
         int format;
@@ -374,7 +374,7 @@ namespace Utils
 
         Gdk.error_trap_push ();
 
-        int result = x_display.get_window_property (Gdk.x11_drawable_get_xid (window),
+        int result = x_display.get_window_property (Gdk.X11Window.get_xid (window),
             Gdk.x11_get_xatom_by_name_for_display (display, "_NET_WM_DESKTOP"),
             0, long.MAX, false, X.XA_CARDINAL, out type, out format, out nitems,
             out bytes_after, out workspace);

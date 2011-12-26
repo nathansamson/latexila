@@ -42,41 +42,37 @@ namespace Dialogs
             Stock.SAVE, ResponseType.ACCEPT,
             null);
 
-        dialog.has_separator = false;
+        Grid grid = new Grid ();
+        grid.set_column_spacing (12);
+        grid.set_row_spacing (8);
+        grid.border_width = 5;
 
-        HBox hbox = new HBox (false, 12);
-        hbox.border_width = 5;
-        VBox content_area = (VBox) dialog.get_content_area ();
-        content_area.pack_start (hbox, true, true, 0);
+        Box content_area = dialog.get_content_area () as Box;
+        content_area.pack_start (grid);
 
         /* image */
         Image image = new Image.from_stock (Stock.DIALOG_WARNING, IconSize.DIALOG);
-        image.set_alignment ((float) 0.5, (float) 0.0);
-        hbox.pack_start (image, false, false, 0);
-
-        VBox vbox = new VBox (false, 12);
-        hbox.pack_start (vbox, true, true, 0);
+        image.set_valign (Align.START);
+        grid.attach (image, 0, 0, 1, 4);
 
         /* primary label */
         Label primary_label = new Label (null);
         primary_label.set_line_wrap (true);
         primary_label.set_use_markup (true);
-        primary_label.set_alignment ((float) 0.0, (float) 0.5);
+        primary_label.set_halign (Align.START);
         primary_label.set_selectable (true);
+        primary_label.margin_bottom = 4;
         primary_label.set_markup ("<span weight=\"bold\" size=\"larger\">"
             + _("There are %d documents with unsaved changes. Save changes before closing?")
             .printf (unsaved_docs.length ())
             + "</span>");
 
-        vbox.pack_start (primary_label, false, false, 0);
-
-        VBox vbox2 = new VBox (false, 8);
-        vbox.pack_start (vbox2, false, false, 0);
+        grid.attach (primary_label, 1, 0, 1, 1);
 
         Label select_label = new Label (_("Select the documents you want to save:"));
         select_label.set_line_wrap (true);
-        select_label.set_alignment ((float) 0.0, (float) 0.5);
-        vbox2.pack_start (select_label, false, false, 0);
+        select_label.set_halign (Align.START);
+        grid.attach (select_label, 1, 1, 1, 1);
 
         /* unsaved documents list with checkboxes */
         TreeView treeview = new TreeView ();
@@ -125,17 +121,18 @@ namespace Dialogs
         // with a scrollbar
         ScrolledWindow sw = (ScrolledWindow) Utils.add_scrollbar (treeview);
         sw.set_shadow_type (ShadowType.IN);
-        vbox2.pack_start (sw, true, true, 0);
+        sw.expand = true;
+        grid.attach (sw, 1, 2, 1, 1);
 
         /* secondary label */
         Label secondary_label = new Label (
             _("If you don't save, all your changes will be permanently lost."));
         secondary_label.set_line_wrap (true);
-        secondary_label.set_alignment ((float) 0.0, (float) 0.5);
+        secondary_label.set_halign (Align.START);
         secondary_label.set_selectable (true);
-        vbox2.pack_start (secondary_label, false, false, 0);
+        grid.attach (secondary_label, 1, 3, 1, 1);
 
-        hbox.show_all ();
+        grid.show_all ();
 
         int resp = dialog.run ();
 

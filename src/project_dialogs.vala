@@ -30,7 +30,7 @@ namespace ProjectDialogs
             null);
 
         /* create dialog widgets */
-        VBox content_area = dialog.get_content_area () as VBox;
+        Box content_area = dialog.get_content_area () as Box;
 
         // directory
         FileChooserButton directory_chooser = new FileChooserButton (_("Directory"),
@@ -119,13 +119,14 @@ namespace ProjectDialogs
             null);
 
         /* create dialog widgets */
-        VBox content_area = dialog.get_content_area () as VBox;
+        Box content_area = dialog.get_content_area () as Box;
 
         // directory
         string project_dir = project.directory.get_parse_name ();
         project_dir = Utils.replace_home_dir_with_tilde (project_dir) + "/";
         Label location = new Label (project_dir);
         location.set_line_wrap (true);
+        location.set_halign (Align.START);
 
         Widget component = Utils.get_dialog_component (_("Location of the project"),
             location);
@@ -181,7 +182,8 @@ namespace ProjectDialogs
             Stock.CLOSE, ResponseType.OK,
             null);
 
-        VBox content_area = (VBox) dialog.get_content_area ();
+        Box content_area = dialog.get_content_area () as Box;
+        content_area.set_size_request (400, 250);
 
         /* treeview */
         ListStore store = new ListStore (ProjectColumn.N_COLUMNS, typeof (string),
@@ -189,7 +191,6 @@ namespace ProjectDialogs
         update_model (store);
 
         TreeView treeview = new TreeView.with_model (store);
-        treeview.set_size_request (400, 150);
         treeview.rules_hint = true;
 
         // column directory
@@ -227,8 +228,10 @@ namespace ProjectDialogs
         content_area.pack_start (sw);
 
         /* buttons */
-        HBox hbox = new HBox (false, 5);
-        content_area.pack_start (hbox, false, false, 5);
+        Grid grid = new Grid ();
+        grid.orientation = Orientation.HORIZONTAL;
+        grid.set_column_spacing (5);
+        content_area.pack_start (grid, false, false, 5);
 
         Button edit_button = new Button.from_stock (Stock.PROPERTIES);
         Button delete_button = new Button.from_stock (Stock.DELETE);
@@ -237,9 +240,9 @@ namespace ProjectDialogs
         Image image = new Image.from_stock (Stock.CLEAR, IconSize.MENU);
         clear_all_button.set_image (image);
 
-        hbox.pack_start (edit_button);
-        hbox.pack_start (delete_button);
-        hbox.pack_start (clear_all_button);
+        grid.add (edit_button);
+        grid.add (delete_button);
+        grid.add (clear_all_button);
 
         content_area.show_all ();
 

@@ -19,34 +19,38 @@
 
 using Gtk;
 
-public class SidePanel : VBox
+public class SidePanel : Grid
 {
     private unowned MainWindow main_window;
     private unowned ToggleAction action_view_side_panel;
 
-    private VBox[] components;
+    private Grid[] components;
     private ComboBox combo_box;
     private ListStore list_store;
 
     public SidePanel (MainWindow main_window, ToggleAction action_view_side_panel)
     {
+        orientation = Orientation.VERTICAL;
         this.main_window = main_window;
         this.action_view_side_panel = action_view_side_panel;
 
-        HBox hbox = new HBox (false, 3);
-        hbox.border_width = 3;
-        pack_start (hbox, false, false, 3);
+        Grid grid = new Grid ();
+        grid.set_orientation (Orientation.HORIZONTAL);
+        grid.column_spacing = 3;
+        grid.border_width = 3;
+        add (grid);
 
         combo_box = get_combo_box ();
-        hbox.pack_start (combo_box);
-        hbox.pack_start (get_close_button (), false, false);
+        combo_box.set_hexpand (true);
+        grid.add (combo_box);
+        grid.add (get_close_button ());
         show_all ();
 
         show.connect (show_active_component);
         hide.connect (hide_all_components);
     }
 
-    public void add_component (string name, string stock_id, VBox component)
+    public void add_component (string name, string stock_id, Grid component)
     {
         TreeIter iter;
         list_store.append (out iter);
@@ -55,7 +59,7 @@ public class SidePanel : VBox
             SidePanelColumn.NAME, name,
             -1);
 
-        pack_start (component);
+        add (component);
         components += component;
     }
 
@@ -118,7 +122,7 @@ public class SidePanel : VBox
 
     private void hide_all_components ()
     {
-        foreach (VBox component in components)
+        foreach (Grid component in components)
             component.hide ();
     }
 
@@ -126,7 +130,7 @@ public class SidePanel : VBox
     {
         hide_all_components ();
 
-        int i = get_active_component ();
-            components[i].show ();
+        int active = get_active_component ();
+            components[active].show ();
     }
 }

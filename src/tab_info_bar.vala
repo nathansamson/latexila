@@ -23,7 +23,7 @@ public class TabInfoBar : InfoBar
 {
     public TabInfoBar (string primary_msg, string secondary_msg, MessageType msg_type)
     {
-        HBox content_area = (HBox) get_content_area ();
+        Box content_area = get_content_area () as Box;
 
         // icon
         string stock_id;
@@ -45,23 +45,25 @@ public class TabInfoBar : InfoBar
         }
 
         Image image = new Image.from_stock (stock_id, IconSize.DIALOG);
-        image.set_alignment ((float) 0.5, (float) 0.0);
+        image.set_valign (Align.START);
         content_area.pack_start (image, false, false, 0);
 
         // text
-        VBox vbox = new VBox (false, 10);
-        content_area.pack_start (vbox, true, true, 0);
+        Grid grid = new Grid ();
+        grid.orientation = Orientation.VERTICAL;
+        grid.set_row_spacing (10);
+        content_area.pack_start (grid);
 
         Label primary_label = new Label ("<b>" + primary_msg + "</b>");
-        vbox.pack_start (primary_label, false, false, 0);
-        primary_label.set_alignment ((float) 0.0, (float) 0.5);
+        grid.add (primary_label);
+        primary_label.set_halign (Align.START);
         primary_label.set_selectable (true);
         primary_label.set_line_wrap (true);
         primary_label.set_use_markup (true);
 
         Label secondary_label = new Label ("<small>" + secondary_msg + "</small>");
-        vbox.pack_start (secondary_label, false, false, 0);
-        secondary_label.set_alignment ((float) 0.0, (float) 0.5);
+        grid.add (secondary_label);
+        secondary_label.set_halign (Align.START);
         secondary_label.set_selectable (true);
         secondary_label.set_line_wrap (true);
         secondary_label.set_use_markup (true);
@@ -82,7 +84,7 @@ public class TabInfoBar : InfoBar
 
     public void add_stock_button_with_text (string text, string stock_id, int response_id)
     {
-        Button button = (Button) add_button (text, response_id);
+        Button button = add_button (text, response_id) as Button;
         Image image = new Image.from_stock (stock_id, IconSize.BUTTON);
         button.set_image (image);
     }

@@ -408,7 +408,7 @@ public class CompletionProvider : GLib.Object, SourceCompletionProvider
         Application app = Application.get_default ();
         _calltip_window = new SourceCompletionInfo ();
         _calltip_window.set_transient_for (app.active_window);
-        _calltip_window.set_sizing (800, 200, true, true);
+        //_calltip_window.set_sizing (800, 200, true, true);
         _calltip_window_label = new Label (null);
         _calltip_window.set_widget (_calltip_window_label);
     }

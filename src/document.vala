@@ -790,7 +790,7 @@ public class Document : Gtk.SourceBuffer
         bool found = false;
         while (! found)
         {
-            found = source_iter_forward_search (start, search_text, get_search_flags (),
+            found = start.forward_search (search_text, get_search_flags (),
                 out match_start, out match_end, end);
 
             if (found && search_entire_word)
@@ -815,7 +815,7 @@ public class Document : Gtk.SourceBuffer
         bool found = false;
         while (! found)
         {
-            found = source_iter_backward_search (start, search_text, get_search_flags (),
+            found = start.backward_search (search_text, get_search_flags (),
                 out match_start, out match_end, end);
 
             if (found && search_entire_word)
@@ -973,11 +973,11 @@ public class Document : Gtk.SourceBuffer
         search_cursor_moved_handler ();
     }
 
-    private SourceSearchFlags get_search_flags ()
+    private TextSearchFlags get_search_flags ()
     {
-        var flags = SourceSearchFlags.TEXT_ONLY | SourceSearchFlags.VISIBLE_ONLY;
+        var flags = TextSearchFlags.TEXT_ONLY | TextSearchFlags.VISIBLE_ONLY;
         if (! search_case_sensitive)
-            flags |= SourceSearchFlags.CASE_INSENSITIVE;
+            flags |= TextSearchFlags.CASE_INSENSITIVE;
         return flags;
     }
 

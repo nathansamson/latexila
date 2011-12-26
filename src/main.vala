@@ -93,83 +93,80 @@ int main (string[] args)
     }
 
     /* prepare commands */
-    bool command_open = false;
-    Unique.MessageData data = new Unique.MessageData ();
-
-    if (remaining_args.length != 0)
-    {
-        command_open = true;
-
-        // since remaining_args.length == 0, we use a dynamic array
-        string[] uris = {};
-        foreach (string arg in remaining_args)
-            // The command line argument can be absolute or relative.
-            // With URI's, that's always absolute, so no problem.
-            uris += File.new_for_path (arg).get_uri ();
-
-        data.set_uris (uris);
-    }
-
-    Unique.App app = new Unique.App ("org.gnome.latexila", null);
-    app.add_command ("new_window", Application.NEW_WINDOW);
-
-    if (app.is_running)
-    {
-        /* send commands */
-        bool ok = true;
-        if (option_new_window)
-        {
-            Unique.Response resp = app.send_message (Application.NEW_WINDOW, null);
-            ok = resp == Unique.Response.OK;
-        }
-        if (ok && command_open)
-        {
-            Unique.Response resp = app.send_message (Unique.Command.OPEN, data);
-            ok = resp == Unique.Response.OK;
-        }
-        if (ok && option_new_document)
-        {
-            Unique.Response resp = app.send_message (Unique.Command.NEW, null);
-            ok = resp == Unique.Response.OK;
-        }
-        if (! option_new_window && ! command_open && ! option_new_document)
-        {
-            Unique.Response resp = app.send_message (Unique.Command.ACTIVATE, null);
-            ok = resp == Unique.Response.OK;
-        }
-
-        if (! ok)
-            error ("Error: communication with first instance of LaTeXila failed\n");
-        return 0;
-    }
+//    bool command_open = false;
+//    Unique.MessageData data = new Unique.MessageData ();
+//
+//    if (remaining_args.length != 0)
+//    {
+//        command_open = true;
+//
+//        // since remaining_args.length == 0, we use a dynamic array
+//        string[] uris = {};
+//        foreach (string arg in remaining_args)
+//            // The command line argument can be absolute or relative.
+//            // With URI's, that's always absolute, so no problem.
+//            uris += File.new_for_path (arg).get_uri ();
+//
+//        data.set_uris (uris);
+//    }
+//
+//    Unique.App app = new Unique.App ("org.gnome.latexila", null);
+//    app.add_command ("new_window", Application.NEW_WINDOW);
+//
+//    if (app.is_running)
+//    {
+//        /* send commands */
+//        bool ok = true;
+//        if (option_new_window)
+//        {
+//            Unique.Response resp = app.send_message (Application.NEW_WINDOW, null);
+//            ok = resp == Unique.Response.OK;
+//        }
+//        if (ok && command_open)
+//        {
+//            Unique.Response resp = app.send_message (Unique.Command.OPEN, data);
+//            ok = resp == Unique.Response.OK;
+//        }
+//        if (ok && option_new_document)
+//        {
+//            Unique.Response resp = app.send_message (Unique.Command.NEW, null);
+//            ok = resp == Unique.Response.OK;
+//        }
+//        if (! option_new_window && ! command_open && ! option_new_document)
+//        {
+//            Unique.Response resp = app.send_message (Unique.Command.ACTIVATE, null);
+//            ok = resp == Unique.Response.OK;
+//        }
+//
+//        if (! ok)
+//            error ("Error: communication with first instance of LaTeXila failed\n");
+//        return 0;
+//    }
 
     /* start a new application */
-    else
+    Application latexila = Application.get_default ();
+
+    /* reopen files on startup */
+    GLib.Settings editor_settings =
+        new GLib.Settings ("org.gnome.latexila.preferences.editor");
+    if (editor_settings.get_boolean ("reopen-files"))
     {
-        Application latexila = Application.get_default ();
+        GLib.Settings window_settings =
+            new GLib.Settings ("org.gnome.latexila.state.window");
 
-        /* reopen files on startup */
-        GLib.Settings editor_settings =
-            new GLib.Settings ("org.gnome.latexila.preferences.editor");
-        if (editor_settings.get_boolean ("reopen-files"))
-        {
-            GLib.Settings window_settings =
-                new GLib.Settings ("org.gnome.latexila.state.window");
-
-            string[] uris = window_settings.get_strv ("documents");
-            latexila.open_documents (uris);
-        }
-
-        /* execute commands */
-        // the --new-window option have no effect in this case
-        if (command_open)
-            latexila.open_documents (data.get_uris ());
-        if (option_new_document)
-            latexila.create_document ();
-
-        app.message_received.connect (latexila.message);
-        Gtk.main ();
+        string[] uris = window_settings.get_strv ("documents");
+        latexila.open_documents (uris);
     }
+
+    /* execute commands */
+    // the --new-window option have no effect in this case
+//    if (command_open)
+//        latexila.open_documents (data.get_uris ());
+    if (option_new_document)
+        latexila.create_document ();
+
+//    app.message_received.connect (latexila.message);
+    Gtk.main ();
 
     return 0;
 }

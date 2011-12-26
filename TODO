@@ -19,7 +19,6 @@ LaTeXila 2.4
 	- complete placeholders (\ref, \cite, ...)
 	  (take into account all *.tex, *.bib, ... files of the project)
 
-
 LaTeXila ≥ 2.4
 ==============
 
@@ -27,6 +26,13 @@ LaTeXila ≥ 2.4
 	- It's not a high priority, since it's not a big issue for GNOME 3 users,
 	  but it would be nice. The problem is that it involves a lot of work,
 	  more than expected. See the branch gnome-3.
+		- GtkBox -> GtkGrid
+		- right click on document tab (the gray zone is ugly)
+		- remove the border of toolbars
+		- reduce some widgets sizes (some are too big)
+		- use GtkApplication instead of Unique
+		- test dev version of GtkSpell
+		- replace gtk_source_completion_info_set_sizing()
 
 - Improve completion:
 	- show details by default (now we have to click on the button to see

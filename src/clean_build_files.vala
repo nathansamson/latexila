@@ -237,47 +237,44 @@ public class CleanBuildFiles : GLib.Object
             Stock.DELETE, ResponseType.ACCEPT,
             null);
 
-        dialog.has_separator = false;
+        Grid grid = new Grid ();
+        grid.set_column_spacing (12);
+        grid.set_row_spacing (8);
+        grid.border_width = 5;
 
-        HBox hbox = new HBox (false, 12);
-        hbox.border_width = 5;
-        VBox content_area = dialog.get_content_area () as VBox;
-        content_area.pack_start (hbox);
+        Box content_area = dialog.get_content_area () as Box;
+        content_area.pack_start (grid);
 
         /* image */
         Image image = new Image.from_stock (Stock.DIALOG_WARNING, IconSize.DIALOG);
-        image.set_alignment ((float) 0.5, (float) 0.0);
-        hbox.pack_start (image, false, false, 0);
-
-        VBox vbox = new VBox (false, 12);
-        hbox.pack_start (vbox);
+        image.set_valign (Align.START);
+        grid.attach (image, 0, 0, 1, 3);
 
         /* primary label */
         Label primary_label = new Label (null);
         primary_label.set_line_wrap (true);
         primary_label.set_use_markup (true);
-        primary_label.set_alignment ((float) 0.0, (float) 0.5);
+        primary_label.set_halign (Align.START);
         primary_label.set_selectable (true);
+        primary_label.margin_bottom = 4;
         primary_label.set_markup ("<span weight=\"bold\" size=\"larger\">"
             + _("Do you really want to delete these files?") + "</span>");
 
-        vbox.pack_start (primary_label, false, false, 0);
-
-        VBox vbox2 = new VBox (false, 8);
-        vbox.pack_start (vbox2);
+        grid.attach (primary_label, 1, 0, 1, 1);
 
         /* secondary label */
         Label select_label = new Label (_("Select the files you want to delete:"));
         select_label.set_line_wrap (true);
-        select_label.set_alignment ((float) 0.0, (float) 0.5);
-        vbox2.pack_start (select_label, false, false, 0);
+        select_label.set_halign (Align.START);
+        grid.attach (select_label, 1, 1, 1, 1);
 
         /* list of files with a scrollbar */
         ScrolledWindow sw = Utils.add_scrollbar (list_files) as ScrolledWindow;
         sw.set_shadow_type (ShadowType.IN);
-        vbox2.pack_start (sw);
+        sw.expand = true;
+        grid.attach (sw, 1, 2, 1, 1);
 
-        hbox.show_all ();
+        grid.show_all ();
 
         return dialog;
     }

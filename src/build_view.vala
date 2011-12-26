@@ -51,7 +51,7 @@ public struct BuildMsg
     public bool expand;
 }
 
-public class BuildView : HBox
+public class BuildView : Grid
 {
     private enum BuildInfo
     {
@@ -81,6 +81,7 @@ public class BuildView : HBox
     public BuildView (MainWindow main_window, Toolbar toolbar,
         ToggleAction view_bottom_panel)
     {
+        orientation = Orientation.HORIZONTAL;
         _main_window = main_window;
         _action_view_bottom_panel = view_bottom_panel;
 
@@ -163,6 +164,11 @@ public class BuildView : HBox
         // double-click
         _view.row_activated.connect ((path) => select_row (_filtered_model, path));
 
+        // with a scrollbar
+        Widget sw = Utils.add_scrollbar (_view);
+        sw.expand = true;
+        add (sw);
+
         // close button
         Button close_button = new Button ();
         close_button.relief = ReliefStyle.NONE;
@@ -175,14 +181,12 @@ public class BuildView : HBox
             _action_view_bottom_panel.active = false;
         });
 
-        // with a scrollbar
-        Widget sw = Utils.add_scrollbar (_view);
-        pack_start (sw);
-
-        VBox vbox = new VBox (false, 0);
-        vbox.pack_start (close_button, false, false);
-        vbox.pack_start (toolbar);
-        pack_start (vbox, false, false);
+        Grid grid = new Grid ();
+        grid.orientation = Orientation.VERTICAL;
+        grid.add (close_button);
+        toolbar.set_vexpand (true);
+        grid.add (toolbar);
+        add (grid);
     }
 
     private bool select_row (TreeModel model, TreePath path)

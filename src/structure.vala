@@ -55,7 +55,7 @@ public enum StructAction
     NB_ACTIONS
 }
 
-public class Structure : VBox
+public class Structure : Grid
 {
     private unowned MainWindow _main_window;
     private Menu _popup_menu;
@@ -89,7 +89,8 @@ public class Structure : VBox
 
     public Structure (MainWindow main_window, UIManager ui_manager)
     {
-        GLib.Object (spacing: 3);
+        orientation = Orientation.VERTICAL;
+        row_spacing = 3;
         _main_window = main_window;
 
         _popup_menu = (Menu) ui_manager.get_widget ("/StructurePopup");
@@ -120,13 +121,14 @@ public class Structure : VBox
 
     private void init_toolbar ()
     {
-        HBox hbox = new HBox (false, 0);
-        pack_start (hbox, false, false);
+        Grid grid = new Grid ();
+        grid.set_orientation (Orientation.HORIZONTAL);
+        add (grid);
 
         // refresh button
         Button refresh_button = Utils.get_toolbar_button (Stock.REFRESH);
         refresh_button.tooltip_text = _("Refresh");
-        hbox.pack_start (refresh_button);
+        grid.add (refresh_button);
 
         refresh_button.clicked.connect (() =>
         {
@@ -135,46 +137,46 @@ public class Structure : VBox
 
         // separator
         SeparatorToolItem sep = new SeparatorToolItem ();
-        hbox.pack_start (sep, false);
+        grid.add (sep);
 
         // expand all button
         Button expand_button = Utils.get_toolbar_button (Stock.ZOOM_IN);
         expand_button.tooltip_text = _("Expand All");
-        hbox.pack_start (expand_button);
+        grid.add (expand_button);
 
         expand_button.clicked.connect (() => _tree_view.expand_all ());
 
         // collapse all button
         Button collapse_button = Utils.get_toolbar_button (Stock.ZOOM_OUT);
         collapse_button.tooltip_text = _("Collapse All");
-        hbox.pack_start (collapse_button);
+        grid.add (collapse_button);
 
         collapse_button.clicked.connect (() => _tree_view.collapse_all ());
 
         // separator
         sep = new SeparatorToolItem ();
-        hbox.pack_start (sep, false);
+        grid.add (sep);
 
         // simple list buttons
         ToggleButton toggle_button = create_simple_list_button ({ StructType.LABEL },
             _("Show labels"));
-        hbox.pack_start (toggle_button);
+        grid.add (toggle_button);
 
         toggle_button = create_simple_list_button ({ StructType.INCLUDE },
             _("Show files included"));
-        hbox.pack_start (toggle_button);
+        grid.add (toggle_button);
 
         toggle_button = create_simple_list_button ({ StructType.TABLE },
             _("Show tables"));
-        hbox.pack_start (toggle_button);
+        grid.add (toggle_button);
 
         toggle_button = create_simple_list_button (
             { StructType.FIGURE, StructType.IMAGE }, _("Show figures and images"));
-        hbox.pack_start (toggle_button);
+        grid.add (toggle_button);
 
         toggle_button = create_simple_list_button ({ StructType.TODO, StructType.FIXME },
             _("Show TODOs and FIXMEs"));
-        hbox.pack_start (toggle_button);
+        grid.add (toggle_button);
     }
 
     // Only one button can be activated at the same time.
@@ -250,7 +252,8 @@ public class Structure : VBox
     private void init_vpaned ()
     {
         _vpaned = new VPaned ();
-        pack_start (_vpaned);
+        _vpaned.expand = true;
+        add (_vpaned);
 
         GLib.Settings settings = new GLib.Settings ("org.gnome.latexila.state.window");
         _vpaned.set_position (settings.get_int ("structure-paned-position"));

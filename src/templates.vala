@@ -102,8 +102,7 @@ public class Templates : GLib.Object
 
     public void show_dialog_new (MainWindow parent)
     {
-        Dialog dialog = new Dialog.with_buttons (_("New File..."), parent,
-            DialogFlags.NO_SEPARATOR,
+        Dialog dialog = new Dialog.with_buttons (_("New File..."), parent, 0,
             Stock.OK, ResponseType.ACCEPT,
             Stock.CANCEL, ResponseType.REJECT,
             null);
@@ -271,8 +270,7 @@ public class Templates : GLib.Object
 
     public void show_dialog_delete (MainWindow parent)
     {
-        Dialog dialog = new Dialog.with_buttons (_("Delete Template(s)..."), parent,
-            DialogFlags.NO_SEPARATOR,
+        Dialog dialog = new Dialog.with_buttons (_("Delete Template(s)..."), parent, 0,
             Stock.DELETE, ResponseType.ACCEPT,
             Stock.CLOSE, ResponseType.REJECT,
             null);

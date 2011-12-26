@@ -448,12 +448,14 @@ public class MainWindow : Window
             SettingsBindFlags.DEFAULT);
 
         /* packing widgets */
-        VBox main_vbox = new VBox (false, 0);
-        main_vbox.pack_start (menu, false, false, 0);
-        main_vbox.pack_start (main_toolbar, false, false, 0);
-        main_vbox.pack_start (edit_toolbar, false, false, 0);
+        Grid main_vgrid = new Grid ();
+        main_vgrid.orientation = Orientation.VERTICAL;
 
-        main_vbox.show ();
+        main_vgrid.add (menu);
+        main_vgrid.add (main_toolbar);
+        main_vgrid.add (edit_toolbar);
+
+        main_vgrid.show ();
         menu.show_all ();
         main_toolbar.show_all ();
 
@@ -462,16 +464,18 @@ public class MainWindow : Window
         // right: documents panel, search and replace, log zone, ...
         main_hpaned = new HPaned ();
         main_hpaned.set_position (settings.get_int ("side-panel-size"));
-        main_vbox.pack_start (main_hpaned);
+        main_vgrid.add (main_hpaned);
         main_hpaned.show ();
 
-        // vbox source view: documents panel, goto line, search and replace
-        VBox vbox_source_view = new VBox (false, 2);
-        vbox_source_view.pack_start (documents_panel);
-        vbox_source_view.pack_start (goto_line, false, false, 0);
-        vbox_source_view.pack_start (search_and_replace.get_widget (), false, false);
+        // vgrid source view: documents panel, goto line, search and replace
+        Grid vgrid_source_view = new Grid ();
+        vgrid_source_view.orientation = Orientation.VERTICAL;
+        vgrid_source_view.set_row_spacing (2);
+        vgrid_source_view.add (documents_panel);
+        vgrid_source_view.add (goto_line);
+        vgrid_source_view.add (search_and_replace.get_widget ());
 
-        vbox_source_view.show ();
+        vgrid_source_view.show ();
         documents_panel.show_all ();
 
         // vertical pane
@@ -481,7 +485,7 @@ public class MainWindow : Window
         vpaned.set_position (settings.get_int ("vertical-paned-position"));
 
         // when we resize the window, the bottom panel keeps the same height
-        vpaned.pack1 (vbox_source_view, true, true);
+        vpaned.pack1 (vgrid_source_view, true, true);
         vpaned.pack2 (build_view, false, true);
 
         main_hpaned.add1 (side_panel);
@@ -490,10 +494,10 @@ public class MainWindow : Window
         side_panel.show ();
         vpaned.show ();
 
-        main_vbox.pack_end (statusbar, false, false, 0);
+        main_vgrid.add (statusbar);
         statusbar.show_all ();
 
-        add (main_vbox);
+        add (main_vgrid);
         show ();
         show_or_hide_widgets ();
         show_or_hide_build_messages ();
@@ -596,15 +600,15 @@ public class MainWindow : Window
         update_build_tools_menu ();
     }
 
-    private void on_menu_item_select (Item proxy)
+    private void on_menu_item_select (MenuItem proxy)
     {
-        Gtk.Action action = ((MenuItem) proxy).get_related_action ();
+        Gtk.Action action = proxy.get_related_action ();
         return_if_fail (action != null);
         if (action.tooltip != null)
             statusbar.push (tip_message_cid, action.tooltip);
     }
 
-    private void on_menu_item_deselect (Item proxy)
+    private void on_menu_item_deselect (MenuItem proxy)
     {
         statusbar.pop (tip_message_cid);
     }
@@ -1921,19 +1925,6 @@ public class MainWindow : Window
         string comments =
             _("LaTeXila is an Integrated LaTeX Environment for the GNOME Desktop");
         string copyright = "Copyright (C) 2009-2011 Sébastien Wilmet";
-        string licence =
-"""LaTeXila is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-LaTeXila is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with LaTeXila.  If not, see <http://www.gnu.org/licenses/>.""";
 
         string website = "http://projects.gnome.org/latexila/";
 
@@ -1948,8 +1939,8 @@ along with LaTeXila.  If not, see <http://www.gnu.org/licenses/>.""";
             "Ann Melnichuk <melnichu@qtp.ufl.edu>",
             "Eric Forgeot <e.forgeot@laposte.net>",
             "Sébastien Wilmet <sebastien.wilmet@gmail.com>",
-            "The Kile Team: http://kile.sourceforge.net/",
-            "Gedit LaTeX Plugin: http://www.michaels-website.de/gedit-latex-plugin/",
+            "The Kile Team http://kile.sourceforge.net/",
+            "Gedit LaTeX Plugin http://live.gnome.org/Gedit/LaTeXPlugin",
             null
         };
 
@@ -1970,7 +1961,7 @@ along with LaTeXila.  If not, see <http://www.gnu.org/licenses/>.""";
             "artists", artists,
             "comments", comments,
             "copyright", copyright,
-            "license", licence,
+            "license-type", License.GPL_3_0,
             "title", _("About LaTeXila"),
             "translator-credits", _("translator-credits"),
             "website", website,

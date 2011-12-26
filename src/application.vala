@@ -200,48 +200,48 @@ public class Application : GLib.Object
         return res;
     }
 
-    public Unique.Response message (Unique.App sender, int command,
-                                    Unique.MessageData data, uint time)
-    {
-        if (command == NEW_WINDOW)
-        {
-            create_window ();
-            return Unique.Response.OK;
-        }
-
-        uint workspace = data.get_workspace ();
-        Gdk.Screen screen = data.get_screen ();
-
-        // if active_window not on current workspace, try to find an other window on the
-        // current workspace.
-        if (! active_window.is_on_workspace_screen (screen, workspace))
-        {
-            bool found = false;
-            foreach (MainWindow w in windows)
-            {
-                if (w == active_window)
-                    continue;
-                if (w.is_on_workspace_screen (screen, workspace))
-                {
-                    found = true;
-                    active_window = w;
-                    break;
-                }
-            }
-
-            if (! found)
-                create_window (screen);
-        }
-
-        if (command == Unique.Command.NEW)
-            create_document ();
-
-        else if (command == Unique.Command.OPEN)
-            open_documents (data.get_uris ());
-
-        active_window.present_with_time (time);
-        return Unique.Response.OK;
-    }
+//    public Unique.Response message (Unique.App sender, int command,
+//                                    Unique.MessageData data, uint time)
+//    {
+//        if (command == NEW_WINDOW)
+//        {
+//            create_window ();
+//            return Unique.Response.OK;
+//        }
+//
+//        uint workspace = data.get_workspace ();
+//        Gdk.Screen screen = data.get_screen ();
+//
+//        // if active_window not on current workspace, try to find an other window on the
+//        // current workspace.
+//        if (! active_window.is_on_workspace_screen (screen, workspace))
+//        {
+//            bool found = false;
+//            foreach (MainWindow w in windows)
+//            {
+//                if (w == active_window)
+//                    continue;
+//                if (w.is_on_workspace_screen (screen, workspace))
+//                {
+//                    found = true;
+//                    active_window = w;
+//                    break;
+//                }
+//            }
+//
+//            if (! found)
+//                create_window (screen);
+//        }
+//
+//        if (command == Unique.Command.NEW)
+//            create_document ();
+//
+//        else if (command == Unique.Command.OPEN)
+//            open_documents (data.get_uris ());
+//
+//        active_window.present_with_time (time);
+//        return Unique.Response.OK;
+//    }
 
     public MainWindow create_window (Gdk.Screen? screen = null)
     {

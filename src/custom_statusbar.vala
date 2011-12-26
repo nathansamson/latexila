@@ -26,7 +26,6 @@ public class CustomStatusbar : Statusbar
     public CustomStatusbar ()
     {
         cursor_position = new Statusbar ();
-        cursor_position.has_resize_grip = false;
         cursor_position.set_size_request (150, -1);
         pack_end (cursor_position, false, true, 0);
     }
