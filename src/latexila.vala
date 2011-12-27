@@ -17,7 +17,30 @@
  * along with LaTeXila.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-public class Application : GLib.Object
+/* Ugly use of global variables... */
+private bool option_version = false;
+private bool option_new_document = false;
+private bool option_new_window = false;
+private string[] remaining_args;
+
+private const OptionEntry[] options =
+{
+    { "version", 'V', 0, OptionArg.NONE, ref option_version,
+    N_("Show the application's version"), null },
+
+    { "new-document", 'n', 0, OptionArg.NONE, ref option_new_document,
+    N_("Create new document"), null },
+
+    { "new-window", '\0', 0, OptionArg.NONE, ref option_new_window,
+    N_("Create a new top-level window in an existing instance of LaTeXila"), null },
+
+    { "", '\0', 0, OptionArg.FILENAME_ARRAY, ref remaining_args,
+    null, "[FILE...]" },
+
+    { null }
+};
+
+public class Latexila : Gtk.Application
 {
     struct StockIcon
     {
@@ -119,17 +142,194 @@ public class Application : GLib.Object
     };
 
     public static int NEW_WINDOW = 1;
-    private static Application instance = null;
-    public unowned List<MainWindow> windows { get; private set; }
+    private static Latexila instance = null;
+    public unowned List<MainWindow> windows {get; private set; }
     public MainWindow active_window { get; private set; }
 
-    /* Application is a singleton
-     * We must use Application.get_default ()
+    /* Latexila is a singleton
+     * We must use Latexila.get_default ()
      */
-    private Application ()
+    private Latexila ()
     {
-        windows = new List<MainWindow> ();
+        Object(application_id: "org.gnome.latexilla",
+               flags: GLib.ApplicationFlags.HANDLES_COMMAND_LINE);
+        command_line.connect(receive_command_line);
+        startup.connect(on_startup);
+        activate.connect(on_activate);
+    }
 
+    public static Latexila get_default ()
+    {
+        if (instance == null)
+            instance = new Latexila ();
+        return instance;
+    }
+
+    // get all the documents currently opened
+    public List<Document> get_documents ()
+    {
+        List<Document> res = null;
+        foreach (MainWindow w in windows)
+            res.concat (w.get_documents ());
+        return res;
+    }
+
+    // get all the document views
+    public List<DocumentView> get_views ()
+    {
+        List<DocumentView> res = null;
+        foreach (MainWindow w in windows)
+            res.concat (w.get_views ());
+        return res;
+    }
+
+    public void on_activate()
+    {
+        /*uint workspace = data.get_workspace ();
+        Gdk.Screen screen = data.get_screen ();
+
+        // if active_window not on current workspace, try to find an other window on the
+        // current workspace.
+        if (! active_window.is_on_workspace_screen (screen, workspace))
+        {
+            bool found = false;
+            foreach (MainWindow w in windows)
+            {
+                if (w == active_window)
+                    continue;
+                if (w.is_on_workspace_screen (screen, workspace))
+                {
+                    found = true;
+                    active_window = w;
+                    break;
+                }
+            }
+
+            if (! found)
+                create_window (screen);
+        }*/
+        active_window.present ();
+    }
+
+    public MainWindow create_window (Gdk.Screen? screen = null)
+    {
+        if (active_window != null)
+            active_window.save_state (true);
+
+        MainWindow window = new MainWindow ();
+        add_window(window);
+        windows.append(window);
+        active_window = window;
+        notify_property ("active-window");
+
+        if (screen != null)
+            window.set_screen (screen);
+
+        window.destroy.connect (() =>
+        {
+            remove_window(window);
+            windows.remove (window);
+            if (windows.length () == 0)
+            {
+                Projects.get_default ().save ();
+                BuildTools.get_default ().save ();
+                MostUsedSymbols.get_default ().save ();
+            }
+            else if (window == active_window)
+            {
+                active_window = (MainWindow) windows.data;
+                notify_property ("active-window");
+            }
+        });
+
+        window.focus_in_event.connect (() =>
+        {
+            active_window = window;
+            notify_property ("active-window");
+            return false;
+        });
+
+        window.show ();
+        return window;
+    }
+
+    public void create_document ()
+    {
+        active_window.create_tab (true);
+    }
+
+    public void open_documents (
+        [CCode (array_length = false, array_null_terminated = true)] string[] uris)
+    {
+        bool jump_to = true;
+        foreach (string uri in uris)
+        {
+            if (uri.length == 0)
+                continue;
+            File location = File.new_for_uri (uri);
+            active_window.open_document (location, jump_to);
+            jump_to = false;
+        }
+    }
+    
+    public int receive_command_line(GLib.ApplicationCommandLine command_line)
+    {
+        OptionContext context =
+            new OptionContext (_("- Integrated LaTeX Environment for GNOME"));
+        context.add_main_entries (options, Config.GETTEXT_PACKAGE);
+        context.add_group (Gtk.get_option_group (false));
+        // Enabling help will close the primary instance...
+        context.set_help_enabled (false);
+
+        try
+        {
+            string[] args = command_line.get_arguments();
+            unowned string[] args_mock = args;
+            context.parse (ref args_mock);
+        }
+        catch (OptionError e)
+        {
+            warning ("%s", e.message);
+            command_line.printerr(_("Run '%s --help' to see a full list of available command line options.\n"),
+                command_line.get_arguments()[0]);
+            return 1;
+        }
+
+        if (option_version)
+        {
+            command_line.print ("%s %s\n", Config.APP_NAME, Config.APP_VERSION);
+            return 0;
+        }
+
+        // When running locally we are the first instance, and we ignore
+        // --new-window.
+        if (option_new_window && !get_is_remote())
+        {
+            create_window();
+        }
+
+        if (remaining_args.length != 0)
+        {
+            GLib.File[] files_to_open = {};
+            // since remaining_args.length == 0, we use a dynamic array
+            foreach (string arg in remaining_args)
+            {
+                // The command line argument can be absolute or relative.
+                // With URI's, that's always absolute, so no problem.
+                files_to_open += File.new_for_path (arg);
+            }
+            open(files_to_open, "");
+        }
+        
+        if (option_new_document)
+        {
+            create_document();
+        }
+        activate();
+        return 0;
+    }
+    
+    public void on_startup() {
         /* personal style */
         // make the close buttons in tabs smaller
         Gtk.rc_parse_string ("""
@@ -173,133 +373,17 @@ public class Application : GLib.Object
 
         AppSettings.get_default ();
         create_window ();
-    }
-
-    public static Application get_default ()
-    {
-        if (instance == null)
-            instance = new Application ();
-        return instance;
-    }
-
-    // get all the documents currently opened
-    public List<Document> get_documents ()
-    {
-        List<Document> res = null;
-        foreach (MainWindow w in windows)
-            res.concat (w.get_documents ());
-        return res;
-    }
-
-    // get all the document views
-    public List<DocumentView> get_views ()
-    {
-        List<DocumentView> res = null;
-        foreach (MainWindow w in windows)
-            res.concat (w.get_views ());
-        return res;
-    }
-
-//    public Unique.Response message (Unique.App sender, int command,
-//                                    Unique.MessageData data, uint time)
-//    {
-//        if (command == NEW_WINDOW)
-//        {
-//            create_window ();
-//            return Unique.Response.OK;
-//        }
-//
-//        uint workspace = data.get_workspace ();
-//        Gdk.Screen screen = data.get_screen ();
-//
-//        // if active_window not on current workspace, try to find an other window on the
-//        // current workspace.
-//        if (! active_window.is_on_workspace_screen (screen, workspace))
-//        {
-//            bool found = false;
-//            foreach (MainWindow w in windows)
-//            {
-//                if (w == active_window)
-//                    continue;
-//                if (w.is_on_workspace_screen (screen, workspace))
-//                {
-//                    found = true;
-//                    active_window = w;
-//                    break;
-//                }
-//            }
-//
-//            if (! found)
-//                create_window (screen);
-//        }
-//
-//        if (command == Unique.Command.NEW)
-//            create_document ();
-//
-//        else if (command == Unique.Command.OPEN)
-//            open_documents (data.get_uris ());
-//
-//        active_window.present_with_time (time);
-//        return Unique.Response.OK;
-//    }
-
-    public MainWindow create_window (Gdk.Screen? screen = null)
-    {
-        if (active_window != null)
-            active_window.save_state (true);
-
-        MainWindow window = new MainWindow ();
-        active_window = window;
-        notify_property ("active-window");
-
-        if (screen != null)
-            window.set_screen (screen);
-
-        window.destroy.connect (() =>
+        
+        /* reopen files on startup */
+        GLib.Settings editor_settings =
+            new GLib.Settings ("org.gnome.latexila.preferences.editor");
+        if (editor_settings.get_boolean ("reopen-files"))
         {
-            windows.remove (window);
-            if (windows.length () == 0)
-            {
-                Projects.get_default ().save ();
-                BuildTools.get_default ().save ();
-                MostUsedSymbols.get_default ().save ();
-                Gtk.main_quit ();
-            }
-            else if (window == active_window)
-            {
-                active_window = (MainWindow) windows.data;
-                notify_property ("active-window");
-            }
-        });
+            GLib.Settings window_settings =
+                new GLib.Settings ("org.gnome.latexila.state.window");
 
-        window.focus_in_event.connect (() =>
-        {
-            active_window = window;
-            notify_property ("active-window");
-            return false;
-        });
-
-        windows.append (window);
-        window.show ();
-        return window;
-    }
-
-    public void create_document ()
-    {
-        active_window.create_tab (true);
-    }
-
-    public void open_documents (
-        [CCode (array_length = false, array_null_terminated = true)] string[] uris)
-    {
-        bool jump_to = true;
-        foreach (string uri in uris)
-        {
-            if (uri.length == 0)
-                continue;
-            File location = File.new_for_uri (uri);
-            active_window.open_document (location, jump_to);
-            jump_to = false;
+            string[] uris = window_settings.get_strv ("documents");
+            open_documents (uris);
         }
     }
 

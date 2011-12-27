@@ -84,7 +84,7 @@ public class AppSettings : GLib.Settings
                 Gtk.SourceStyleSchemeManager.get_default ();
             Gtk.SourceStyleScheme scheme = manager.get_scheme (scheme_id);
 
-            foreach (Document doc in Application.get_default ().get_documents ())
+            foreach (Document doc in Latexila.get_default ().get_documents ())
                 doc.style_scheme = scheme;
 
             // we don't use doc.set_style_scheme_from_string() for performance reason
@@ -95,7 +95,7 @@ public class AppSettings : GLib.Settings
             uint val;
             setting.get (key, "u", out val);
 
-            foreach (DocumentView view in Application.get_default ().get_views ())
+            foreach (DocumentView view in Latexila.get_default ().get_views ())
                 view.tab_width = val;
         });
 
@@ -103,7 +103,7 @@ public class AppSettings : GLib.Settings
         {
             bool val = setting.get_boolean (key);
 
-            foreach (DocumentView view in Application.get_default ().get_views ())
+            foreach (DocumentView view in Latexila.get_default ().get_views ())
                 view.insert_spaces_instead_of_tabs = val;
         });
 
@@ -111,7 +111,7 @@ public class AppSettings : GLib.Settings
         {
             bool val = setting.get_boolean (key);
 
-            foreach (DocumentView view in Application.get_default ().get_views ())
+            foreach (DocumentView view in Latexila.get_default ().get_views ())
                 view.show_line_numbers = val;
         });
 
@@ -119,7 +119,7 @@ public class AppSettings : GLib.Settings
         {
             bool val = setting.get_boolean (key);
 
-            foreach (DocumentView view in Application.get_default ().get_views ())
+            foreach (DocumentView view in Latexila.get_default ().get_views ())
                 view.highlight_current_line = val;
         });
 
@@ -127,7 +127,7 @@ public class AppSettings : GLib.Settings
         {
             bool val = setting.get_boolean (key);
 
-            foreach (Document doc in Application.get_default ().get_documents ())
+            foreach (Document doc in Latexila.get_default ().get_documents ())
                 doc.highlight_matching_brackets = val;
         });
 
@@ -135,7 +135,7 @@ public class AppSettings : GLib.Settings
         {
             bool val = setting.get_boolean (key);
 
-            foreach (Document doc in Application.get_default ().get_documents ())
+            foreach (Document doc in Latexila.get_default ().get_documents ())
                 doc.tab.auto_save = val;
         });
 
@@ -144,7 +144,7 @@ public class AppSettings : GLib.Settings
             uint val;
             setting.get (key, "u", out val);
 
-            foreach (Document doc in Application.get_default ().get_documents ())
+            foreach (Document doc in Latexila.get_default ().get_documents ())
                 doc.tab.auto_save_interval = val;
         });
 
@@ -163,7 +163,7 @@ public class AppSettings : GLib.Settings
 
     private void set_font (string font)
     {
-        foreach (DocumentView view in Application.get_default ().get_views ())
+        foreach (DocumentView view in Latexila.get_default ().get_views ())
             view.set_font_from_string (font);
     }
 }

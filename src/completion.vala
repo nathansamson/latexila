@@ -405,7 +405,7 @@ public class CompletionProvider : GLib.Object, SourceCompletionProvider
 
     private void init_calltip_window ()
     {
-        Application app = Application.get_default ();
+        Latexila app = Latexila.get_default ();
         _calltip_window = new SourceCompletionInfo ();
         _calltip_window.set_transient_for (app.active_window);
         //_calltip_window.set_sizing (800, 200, true, true);
@@ -418,7 +418,7 @@ public class CompletionProvider : GLib.Object, SourceCompletionProvider
         if (_calltip_window == null)
             init_calltip_window ();
 
-        MainWindow win = Application.get_default ().active_window;
+        MainWindow win = Latexila.get_default ().active_window;
 
         // calltip at a fixed place (after the '{' or '[' of the current arg)
         TextIter pos;

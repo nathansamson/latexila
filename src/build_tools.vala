@@ -231,7 +231,7 @@ public class BuildTools
     private void update_all_menus ()
     {
         _modified = true;
-        foreach (MainWindow window in Application.get_default ().windows)
+        foreach (MainWindow window in Latexila.get_default ().windows)
             window.update_build_tools_menu ();
     }
 

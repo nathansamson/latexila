@@ -80,7 +80,7 @@ public class Projects
 
     private void update_all_menus ()
     {
-        foreach (MainWindow window in Application.get_default ().windows)
+        foreach (MainWindow window in Latexila.get_default ().windows)
             window.update_config_project_sensitivity ();
     }
 
@@ -102,7 +102,7 @@ public class Projects
         modified = true;
 
         // find if some opened documents are belonging to the new project
-        GLib.List<Document> docs = Application.get_default ().get_documents ();
+        GLib.List<Document> docs = Latexila.get_default ().get_documents ();
         foreach (Document doc in docs)
         {
             if (doc.project_id != -1)
@@ -133,7 +133,7 @@ public class Projects
         modified = true;
 
         // refresh docs
-        GLib.List<Document> docs = Application.get_default ().get_documents ();
+        GLib.List<Document> docs = Latexila.get_default ().get_documents ();
         foreach (Document doc in docs)
         {
             if (doc.project_id == num)
@@ -150,7 +150,7 @@ public class Projects
         modified = true;
 
         // refresh docs
-        GLib.List<Document> docs = Application.get_default ().get_documents ();
+        GLib.List<Document> docs = Latexila.get_default ().get_documents ();
         foreach (Document doc in docs)
         {
             if (doc.project_id == num)
@@ -172,7 +172,7 @@ public class Projects
 
     private void update_all_documents ()
     {
-        GLib.List<Document> docs = Application.get_default ().get_documents ();
+        GLib.List<Document> docs = Latexila.get_default ().get_documents ();
         foreach (Document doc in docs)
         {
             doc.project_id = -1;
